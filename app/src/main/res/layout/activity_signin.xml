@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#ffffff"
+    android:id="@+id/signin_activity"
+    android:orientation="vertical"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <ImageButton
+        android:id="@+id/back"
+        android:layout_margin="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:src="@drawable/back"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/idEdit"
+            android:layout_width="274dp"
+            android:layout_height="50dp"
+            android:layout_margin="1dp"
+            android:background="#CCCCCC"
+            android:hint="@string/id"
+            android:textColor="#777777"
+            android:textSize="16sp" />
+
+        <EditText
+            android:id="@+id/passwordEdit"
+            android:layout_width="274dp"
+            android:layout_height="50dp"
+            android:layout_margin="1dp"
+            android:background="#CCCCCC"
+            android:hint="@string/password"
+            android:textColor="#777777"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="16dp"
+            android:background="#00FF0000"
+            android:backgroundTint="#FFFFFF"
+            android:text="@string/wrong_pw"
+            android:textColor="#777777"
+            android:textSize="12sp" />
+
+        <EditText
+            android:id="@+id/passwordConfirmed"
+            android:layout_width="274dp"
+            android:layout_height="50dp"
+            android:layout_margin="1dp"
+            android:background="#CCCCCC"
+            android:hint="@string/ck_password"
+            android:textColor="#777777"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/sign_in"
+            android:layout_width="wrap_content"
+            android:layout_height="48dp"
+            android:backgroundTint="#EEEEEE"
+            android:text="@string/sign_in"
+            android:textColor="#777777"
+            android:textSize="12sp" />
+
+
+    </LinearLayout>
+</LinearLayout>
