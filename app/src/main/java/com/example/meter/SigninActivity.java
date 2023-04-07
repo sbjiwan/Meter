@@ -50,7 +50,6 @@ public class SigninActivity extends AppCompatActivity {
                 Toast.makeText(binding.getRoot().getContext(),"6자리 이상 입력해주세요",Toast.LENGTH_SHORT).show();
                 verifiedGo = false;
             }
-
             if(verifiedGo)
                 doSigin(id,password);
         });
