@@ -1,9 +1,12 @@
 <resources>
     <string name="app_name">Meter</string>
-    <string name="id">abc123</string>
-    <string name="password">6자 이상의 비밀번호</string>
-    <string name="ck_password">비밀번호 확인</string>
-    <string name="wrong_pw">비밀번호는 6자 이상이어야 합니다.</string>
+    <string name="login_info"><b>이메일과 비밀번호를\n입력하세요</b></string>
+    <string name="signin_info"><b>사용할 이메일을 입력하고\n비밀번호를 설정하세요</b></string>
+    <string name="id">이메일</string>
+    <string name="password">비밀번호</string>
+    <string name="password_confirm">비밀번호 확인</string>
+    <string name="wrong_id">잘못된 유형의 이메일 주소입니다.</string>
+    <string name="wrong_pw">비밀번호는 8자 이상이어야 합니다.</string>
     <string name="right_pw">사용가능한 비밀번호입니다.</string>
     <string name="ckpw_1">비밀번호가 일치하지 않습니다.</string>
     <string name="ckpw_2">비밀번호가 일치합니다.</string>

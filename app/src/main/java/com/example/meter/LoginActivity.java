@@ -2,18 +2,20 @@ package com.example.meter;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.Toast;
-
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.meter.databinding.ActivityLoginBinding;
 import com.google.firebase.auth.FirebaseAuth;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
     private FirebaseAuth mAuth;
+    private Boolean check_email, check_pw = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -22,13 +24,47 @@ public class LoginActivity extends AppCompatActivity {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.signin.setOnClickListener(new View.OnClickListener() {
+        binding.signin.setOnClickListener(view -> startActivity(new Intent(LoginActivity.this, SigninActivity.class)));
+
+        binding.idInput.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View view) {
-                startActivity(new Intent(LoginActivity.this, SigninActivity.class));
-            }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Pattern pattern = Pattern.compile("\\w+@\\w+" + "com");
+                Matcher matcher = pattern.matcher(charSequence);
+
+                if(!matcher.find()) {
+                    binding.wrongId.setText(R.string.wrong_id);
+                    check_email = false;
+                }
+                else {
+                    binding.wrongId.setText("");
+                    check_email = true;
+                }}
+            @Override
+            public void afterTextChanged(Editable editable) {}
         });
-        //binding.signin.setOnClickListener(view -> startActivity(new Intent(LoginActivity.this, SigninActivity.class)));
+
+        binding.passwordInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if(i < 7) {
+                    binding.wrongPw.setText(R.string.wrong_pw);
+                    check_pw = false;
+                }
+                else {
+                    binding.wrongPw.setText("");
+                    check_pw = true;
+                }}
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
+        System.out.println(binding.idInput.getText());
+
+        binding.login.setEnabled(check_email && check_pw);
 
         binding.login.setOnClickListener(view -> {
             String id = binding.idInput.getText().toString();
@@ -42,20 +78,17 @@ public class LoginActivity extends AppCompatActivity {
         binding.idInput.setText("");
         binding.passwordInput.setText("");
         mAuth = FirebaseAuth.getInstance();
-
-        id += "@sns.com";
-
         mAuth.signInWithEmailAndPassword(id, password)
-                .addOnCompleteListener(LoginActivity.this, task -> {
+                .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         // 로그인 성공시
                         mAuth.getCurrentUser();
                         Toast.makeText(binding.getRoot().getContext(), "로그인에 성공하였습니다.",
                                 Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+                        startActivity(new Intent(this, HomeActivity.class));
                     } else {
                         // 로그인 실패시
-                        Toast.makeText(LoginActivity.this, "로그인에 실패했습니다.",
+                        Toast.makeText(this, "로그인에 실패했습니다.",
                                 Toast.LENGTH_SHORT).show();
                     }
                 });
