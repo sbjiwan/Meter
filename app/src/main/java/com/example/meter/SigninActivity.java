@@ -5,17 +5,19 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.Toast;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.meter.databinding.ActivitySigninBinding;
 import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SigninActivity extends AppCompatActivity {
     private ActivitySigninBinding binding;
     private FirebaseAuth mAuth;
-    private Boolean check_email, check_pw, check_pwcf = false;
+    private boolean check_email, check_pw, check_pwcf = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -36,7 +38,9 @@ public class SigninActivity extends AppCompatActivity {
                     check_email = false;}
                 else {
                     binding.wrongSignId.setText("");
-                    check_email = true;}}
+                    check_email = true;}
+                binding.signIn.setEnabled(check_email && check_pw && check_pwcf);
+            }
             @Override
             public void afterTextChanged(Editable editable) {}
         });
@@ -50,7 +54,9 @@ public class SigninActivity extends AppCompatActivity {
                     check_pw = false;}
                 else {
                     binding.wrongSignPw.setText(R.string.right_pw);
-                    check_pw = true;}}
+                    check_pw = true;}
+                binding.signIn.setEnabled(check_email && check_pw && check_pwcf);
+            }
             @Override
             public void afterTextChanged(Editable editable) {}
         });
@@ -64,12 +70,12 @@ public class SigninActivity extends AppCompatActivity {
                     check_pwcf = false;}
                 else {
                     binding.wrongSignPwcf.setText(R.string.ckpw_2);
-                    check_pwcf = true;}}
+                    check_pwcf = true;}
+                binding.signIn.setEnabled(check_email && check_pw && check_pwcf);
+            }
             @Override
             public void afterTextChanged(Editable editable) {}
         });
-
-        binding.signIn.setEnabled(check_email && check_pw && check_pwcf);
 
         binding.signIn.setOnClickListener(view -> {
             String id = binding.signId.getText().toString();
@@ -106,7 +112,9 @@ public class SigninActivity extends AppCompatActivity {
                         mAuth.getCurrentUser();
                         Toast.makeText(binding.getRoot().getContext(), "로그인에 성공하였습니다.",
                                 Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(this, HomeActivity.class));
+                        Intent intent = new Intent(this, HomeActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
                     } else {
                         // 로그인 실패시
                         Toast.makeText(this, "로그인에 실패했습니다.",

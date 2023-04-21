@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
     private FirebaseAuth mAuth;
-    private Boolean check_email, check_pw = false;
+    private boolean check_email, check_pw = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -24,14 +24,18 @@ public class LoginActivity extends AppCompatActivity {
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.signin.setOnClickListener(view -> startActivity(new Intent(LoginActivity.this, SigninActivity.class)));
+        binding.signin.setOnClickListener(view -> {
+            Intent intent = new Intent(LoginActivity.this, SigninActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        });
 
         binding.idInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                Pattern pattern = Pattern.compile("\\w+@\\w+" + "com");
+                Pattern pattern = Pattern.compile("\\w+@\\w+" + ".com");
                 Matcher matcher = pattern.matcher(charSequence);
 
                 if(!matcher.find()) {
@@ -41,7 +45,8 @@ public class LoginActivity extends AppCompatActivity {
                 else {
                     binding.wrongId.setText("");
                     check_email = true;
-                }}
+                }
+                binding.login.setEnabled(check_email && check_pw);}
             @Override
             public void afterTextChanged(Editable editable) {}
         });
@@ -58,13 +63,11 @@ public class LoginActivity extends AppCompatActivity {
                 else {
                     binding.wrongPw.setText("");
                     check_pw = true;
-                }}
+                }
+                binding.login.setEnabled(check_email && check_pw);}
             @Override
             public void afterTextChanged(Editable editable) {}
         });
-        System.out.println(binding.idInput.getText());
-
-        binding.login.setEnabled(check_email && check_pw);
 
         binding.login.setOnClickListener(view -> {
             String id = binding.idInput.getText().toString();
@@ -85,7 +88,9 @@ public class LoginActivity extends AppCompatActivity {
                         mAuth.getCurrentUser();
                         Toast.makeText(binding.getRoot().getContext(), "로그인에 성공하였습니다.",
                                 Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(this, HomeActivity.class));
+                        Intent intent = new Intent(this, HomeActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
                     } else {
                         // 로그인 실패시
                         Toast.makeText(this, "로그인에 실패했습니다.",
