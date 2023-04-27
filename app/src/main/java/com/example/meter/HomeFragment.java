@@ -19,34 +19,41 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Source;
 
-import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 
 public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;
     private int meter = 0;
     private final FirebaseAuth auth = FirebaseAuth.getInstance();
+    private final Calendar calendar = Calendar.getInstance();
+    int year = calendar.get(Calendar.YEAR);
+    int month = calendar.get(Calendar.MONTH);
+    int date = calendar.get(Calendar.DATE);
+    private final Source source = Source.CACHE;
+
     private final CollectionReference reference = FirebaseFirestore.getInstance().collection("Water_User");
     @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
 
-        int year = LocalDate.now().getYear();
-        int month = LocalDate.now().getMonthValue();
-        int date = LocalDate.now().getDayOfMonth();
-
-        Source source = Source.CACHE;
-
         reference.document(Objects.requireNonNull(Objects.requireNonNull(auth.getCurrentUser()).getEmail()))
-                .collection(year+"-"+month+"-"+date)
+                .collection(year+"")
+                .document(month + "")
+                .collection(date + "")
                 .document("METER")
                 .get(source)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-
                         DocumentSnapshot document = task.getResult();
-                        meter = Integer.parseInt(Objects.requireNonNull(Objects.requireNonNull(document.getData()).getOrDefault("meter", 0)).toString());
+
+                        meter = Integer.parseInt(Objects.requireNonNull(Objects.requireNonNull(
+                                document.getData()).getOrDefault("meter", 0)).toString());
+
                         Log.d(TAG, "Cached document data: " + meter);
                         binding.meter.setText(meter + "L");
                         if(meter > 600) {
@@ -80,5 +87,86 @@ public class HomeFragment extends Fragment {
         params.width = meter;
         params.height = meter;
         view.setLayoutParams(params);
+    }
+    public void setup(int month) {
+        Random random = new Random();
+        int monthsum = 0;
+
+        calendar.set(2023, month-1, 1);
+        int d = calendar.getActualMaximum(Calendar.DATE);
+        int dow = calendar.get(Calendar.DAY_OF_WEEK);
+        int p = 7 - dow;
+
+        for (int i = 1; i <= d; i++) {
+            int sum = 0;
+            for (int j = 0; j < 288; j++) {
+                final int k = j * 5;
+                int h = k / 60;
+                int m = k % 60;
+                Map<String, Object> map = new HashMap<>();
+                int v = 0;
+
+                if(i > 3) {
+                    if ((i - p)%7 == 0 || (i-p)%7 == 1) {
+                        if (h == 8)
+                            v = random.nextInt(5);
+                        else if (h == 12)
+                            v = random.nextInt(7);
+                        else if (h >= 18 && h < 20)
+                            v = random.nextInt(15);
+                    }else {
+                        if (h == 8)
+                            v = random.nextInt(8);
+                        else if (h == 12)
+                            v = random.nextInt(4);
+                        else if (h >= 18 && h < 20)
+                            v = random.nextInt(13);
+                    }
+                }
+                else {
+                    if (h == 8)
+                        v = random.nextInt(8);
+                    else if (h == 12)
+                        v = random.nextInt(4);
+                    else if (h >= 18 && h < 20)
+                        v = random.nextInt(13);
+                }
+
+                map.put("meter", v);
+                sum += v;
+                int finalI = i;
+
+                reference.document(Objects.requireNonNull(Objects.requireNonNull(auth.getCurrentUser()).getEmail()))
+                        .collection("2023")
+                        .document(month + "")
+                        .collection(i+"")
+                        .document(h+":"+m)
+                        .set(map)
+                        .addOnSuccessListener(aVoid -> Log.d(TAG, finalI + "DocumentSnapshot successfully written!"))
+                        .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
+            }
+            Map<String, Object> map = new HashMap<>();
+            map.put("meter", sum);
+            monthsum += sum;
+            reference.document(Objects.requireNonNull(Objects.requireNonNull(auth.getCurrentUser()).getEmail()))
+                    .collection("2023")
+                    .document(month +"")
+                    .collection(i+"")
+                    .document("METER")
+                    .set(map)
+                    .addOnSuccessListener(aVoid -> Log.d(TAG, "dayend DocumentSnapshot successfully written!"))
+                    .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("meter", monthsum);
+        reference.document(Objects.requireNonNull(Objects.requireNonNull(auth.getCurrentUser()).getEmail()))
+                .collection("2023")
+                .document(month +"")
+                .collection("SUM")
+                .document("METER")
+                .set(map)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "END DocumentSnapshot successfully written!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
     }
 }

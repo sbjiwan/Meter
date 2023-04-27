@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:orientation="horizontal">
 
-
     <Button
         android:id="@+id/logout"
         android:layout_width="wrap_content"
@@ -17,7 +16,7 @@
         android:backgroundTint="@color/white"
         android:text="@string/log_out"
         android:textColor="#777777"
-        android:textSize="12sp"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
