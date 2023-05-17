@@ -1,20 +1,35 @@
 package com.example.meter;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.meter.databinding.ActivityLoginBinding;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Source;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
     private FirebaseAuth mAuth;
+    private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    private final Source source = Source.CACHE;
+    private final CollectionReference userReference = firestore.collection("user");
     private boolean check_email, check_pw = false;
 
     @Override
@@ -73,29 +88,50 @@ public class LoginActivity extends AppCompatActivity {
             String id = binding.idInput.getText().toString();
             String password = binding.passwordInput.getText().toString();
 
-            doLogin(id, password);
+            getSalt(id, password);
         });
     }
+    private void getSalt(String email, String password) {
+        userReference.document(email).get(source).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                doLogin(email, password, String.valueOf(Objects.requireNonNull(document.getData()).getOrDefault("salt", "")));
+            } else {
+                System.out.println("false get salt");
+                Log.w(TAG, "Error getting documents.", task.getException());
+            }
+        });
+    }
+    private void doLogin(String email, String password, String salt) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update((password + salt).getBytes(StandardCharsets.UTF_8));
+            byte[] pwdsalt = md.digest();
 
-    private void doLogin(String id, String password) {
-        binding.idInput.setText("");
-        binding.passwordInput.setText("");
-        mAuth = FirebaseAuth.getInstance();
-        mAuth.signInWithEmailAndPassword(id, password)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        // 로그인 성공시
-                        mAuth.getCurrentUser();
-                        Toast.makeText(binding.getRoot().getContext(), "로그인에 성공하였습니다.",
-                                Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(this, HomeActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                    } else {
-                        // 로그인 실패시
-                        Toast.makeText(this, "로그인에 실패했습니다.",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
+            StringBuilder sb = new StringBuilder();
+            for(byte bb : pwdsalt)
+                sb.append(String.format("%02x", bb));
+
+            mAuth = FirebaseAuth.getInstance();
+            mAuth.signInWithEmailAndPassword(email, sb.toString())
+                    .addOnCompleteListener(this, task -> {
+                        if (task.isSuccessful()) {
+                            // 로그인 성공시
+                            mAuth.getCurrentUser();
+                            Toast.makeText(binding.getRoot().getContext(), "로그인에 성공하였습니다.",
+                                    Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(this, HomeActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
+                        } else {
+                            // 로그인 실패시
+                            Toast.makeText(this, "로그인에 실패했습니다.",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

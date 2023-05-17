@@ -34,8 +34,8 @@ public class HomeFragment extends Fragment {
     int month = calendar.get(Calendar.MONTH);
     int date = calendar.get(Calendar.DATE);
     private final Source source = Source.CACHE;
-
     private final CollectionReference reference = FirebaseFirestore.getInstance().collection("Water_User");
+
     @SuppressLint("SetTextI18n")
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -93,11 +93,13 @@ public class HomeFragment extends Fragment {
         int monthsum = 0;
 
         calendar.set(2023, month-1, 1);
+
         int d = calendar.getActualMaximum(Calendar.DATE);
         int dow = calendar.get(Calendar.DAY_OF_WEEK);
         int p = 7 - dow;
 
         for (int i = 1; i <= d; i++) {
+            System.out.println(i);
             int sum = 0;
             for (int j = 0; j < 288; j++) {
                 final int k = j * 5;
@@ -131,33 +133,30 @@ public class HomeFragment extends Fragment {
                     else if (h >= 18 && h < 20)
                         v = random.nextInt(13);
                 }
-
                 map.put("meter", v);
                 sum += v;
-                int finalI = i;
-
                 reference.document(Objects.requireNonNull(Objects.requireNonNull(auth.getCurrentUser()).getEmail()))
                         .collection("2023")
                         .document(month + "")
                         .collection(i+"")
                         .document(h+":"+m)
                         .set(map)
-                        .addOnSuccessListener(aVoid -> Log.d(TAG, finalI + "DocumentSnapshot successfully written!"))
-                        .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
+                        .addOnSuccessListener(aVoid -> System.out.println("success" + aVoid))
+                        .addOnFailureListener(e -> System.out.println("error" + e));
             }
             Map<String, Object> map = new HashMap<>();
             map.put("meter", sum);
             monthsum += sum;
+            System.out.println(sum);
             reference.document(Objects.requireNonNull(Objects.requireNonNull(auth.getCurrentUser()).getEmail()))
                     .collection("2023")
                     .document(month +"")
                     .collection(i+"")
                     .document("METER")
                     .set(map)
-                    .addOnSuccessListener(aVoid -> Log.d(TAG, "dayend DocumentSnapshot successfully written!"))
-                    .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
+                    .addOnSuccessListener(aVoid -> System.out.println("success" + aVoid))
+                    .addOnFailureListener(e -> System.out.println("error" + e));
         }
-
         Map<String, Object> map = new HashMap<>();
         map.put("meter", monthsum);
         reference.document(Objects.requireNonNull(Objects.requireNonNull(auth.getCurrentUser()).getEmail()))
@@ -166,7 +165,7 @@ public class HomeFragment extends Fragment {
                 .collection("SUM")
                 .document("METER")
                 .set(map)
-                .addOnSuccessListener(aVoid -> Log.d(TAG, "END DocumentSnapshot successfully written!"))
-                .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
+                .addOnSuccessListener(aVoid -> System.out.println("success" + aVoid))
+                .addOnFailureListener(e -> System.out.println("error" + e));
     }
 }

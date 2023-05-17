@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 public class HomeActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
+    private final FragmentManager fragmentManager = getSupportFragmentManager();
     private HomeFragment frag1;
     private StatisticsFragment frag2;
     private HistoryFragment frag3;
@@ -45,21 +46,22 @@ public class HomeActivity extends AppCompatActivity {
         BottomNavigationView bottomNavigationView = binding.bottomNavi;
 
         bottomNavigationView.setOnItemReselectedListener(menuItem -> {
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
             switch (menuItem.getItemId()) {
                 case R.id.action_home:
-                    setFrag(1);
+                    transaction.replace(R.id.content_main, frag1).commit();
                     break;
                 case R.id.action_history1:
-                    setFrag(2);
+                    transaction.replace(R.id.content_main, frag2).commit();
                     break;
                 case R.id.action_history2:
-                    setFrag(3);
+                    transaction.replace(R.id.content_main, frag3).commit();
                     break;
                 case R.id.action:
-                    setFrag(4);
+                    transaction.replace(R.id.content_main, frag4).commit();
                     break;
                 case R.id.action_mypage:
-                    setFrag(5);
+                    transaction.replace(R.id.content_main, frag5).commit();
                     break;
             }
         });
@@ -69,7 +71,9 @@ public class HomeActivity extends AppCompatActivity {
         frag3 = new HistoryFragment();
         frag4 = new ExampleFragment();
         frag5 = new MypageFragment();
-        setFrag(1);
+
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.content_main, frag1).commit();
     }
 
     @Override
@@ -79,31 +83,4 @@ public class HomeActivity extends AppCompatActivity {
                 || super.onSupportNavigateUp();
     }
 
-    public void setFrag(int n) {
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        switch (n)
-        {
-            case 1:
-                ft.replace(R.id.content_main,frag1);
-                ft.commit();
-                break;
-            case 2:
-                ft.replace(R.id.content_main,frag2);
-                ft.commit();
-                break;
-            case 3:
-                ft.replace(R.id.content_main,frag3);
-                ft.commit();
-                break;
-            case 4:
-                ft.replace(R.id.content_main,frag4);
-                ft.commit();
-                break;
-            case 5:
-                ft.replace(R.id.content_main,frag5);
-                ft.commit();
-                break;
-        }
-    }
 }

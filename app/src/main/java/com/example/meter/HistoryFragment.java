@@ -47,7 +47,7 @@ public class HistoryFragment extends Fragment {
     private final CollectionReference reference = FirebaseFirestore.getInstance().collection("Water_User");
     private final Calendar calendar = Calendar.getInstance();
     private final Calendar t_calendar = Calendar.getInstance();
-    private int date = calendar.get(Calendar.DATE);
+    private final int date = calendar.get(Calendar.DATE);
     private int month = calendar.get(Calendar.MONTH);
     private int year = calendar.get(Calendar.YEAR);
     private final int now_date = t_calendar.get(Calendar.DATE);
@@ -101,7 +101,7 @@ public class HistoryFragment extends Fragment {
             int finalI = i;
             reference.document(Objects.requireNonNull(Objects.requireNonNull(auth.getCurrentUser()).getEmail()))
                     .collection(year + "")
-                    .document(month + "")
+                    .document((month+1)+ "")
                     .collection(finalI + "")
                     .document("METER")
                     .get(source)
@@ -185,7 +185,7 @@ public class HistoryFragment extends Fragment {
                             });
                 }
             }
-            calendar.add(month,1);
+            calendar.set(year,month+1,date);
             year = calendar.get(Calendar.YEAR);
             month = calendar.get(Calendar.MONTH);
         }
@@ -421,7 +421,7 @@ public class HistoryFragment extends Fragment {
                             ck_day++;
                         }
                     }
-                    calendar.add(month, 1);
+                    calendar.add(Calendar.MONTH, 1);
                     year = calendar.get(Calendar.YEAR);
                     month = calendar.get(Calendar.MONTH);
                 }
@@ -619,7 +619,7 @@ public class HistoryFragment extends Fragment {
         else if(compSum > Sum)
             binding.comparison.setText("지난달 이맘때보다 " + (int) (compSum - Sum) + "L 덜 썼어요");
 
-        LineDataSet dataSet = new LineDataSet(lineEntries, "4월");
+        LineDataSet dataSet = new LineDataSet(lineEntries, "5월");
 
         dataSet.setColors(Color.rgb(80,200,255));
         dataSet.setValueTextColor(Color.WHITE);
@@ -629,7 +629,7 @@ public class HistoryFragment extends Fragment {
         dataSet.setCircleColor(Color.parseColor("#FFA1B4DC"));
         dataSet.setCircleHoleColor(Color.BLUE);
 
-        LineDataSet compdataSet = new LineDataSet(complineEntries, "3월");
+        LineDataSet compdataSet = new LineDataSet(complineEntries, "4월");
         compdataSet.setColors(Color.rgb(230,230,230));
         compdataSet.setValueTextColor(Color.WHITE);
         compdataSet.setFillColor(Color.rgb(230,230,230));

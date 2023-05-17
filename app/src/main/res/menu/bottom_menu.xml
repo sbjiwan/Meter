@@ -2,26 +2,28 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_home"
+        android:enabled="true"
         android:icon="@drawable/home"
         android:title="홈"/>
 
     <item
         android:id="@+id/action_history1"
+        android:enabled="true"
         android:icon="@drawable/history"
-        android:title="통계"/>
-
+        android:title="요금"/>
     <item
         android:id="@+id/action_history2"
+        android:enabled="true"
         android:icon="@drawable/history"
-        android:title="내역"/>
-
+        android:title="사용량"/>
     <item
         android:id="@+id/action"
+        android:enabled="true"
         android:icon="@drawable/history"
         android:title="데이터분석"/>
-
     <item
         android:id="@+id/action_mypage"
+        android:enabled="true"
         android:icon="@drawable/mypage"
         android:title="마이페이지"/>
 </menu>

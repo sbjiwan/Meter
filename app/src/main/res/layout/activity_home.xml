@@ -27,6 +27,13 @@
         app:itemBackground="@android:color/white"
         app:itemIconTint="@drawable/bottom_selector"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:menu="@menu/bottom_menu" />
+        android:nestedScrollingEnabled="false"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:focusedByDefault="true"
+        app:labelVisibilityMode="labeled"
+
+        app:menu="@menu/bottom_menu"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
