@@ -3,96 +3,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/statisticsFragment">
-
-    <fragment
-        android:id="@+id/statisticsFragment"
-        android:name="com.example.meter.StatisticsFragment"
-        android:label="StatisticsFragment" >
-<!--        <action-->
-<!--            android:id="@+id/action_statisticsFragment_to_exampleFragment"-->
-<!--            app:destination="@id/exampleFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_statisticsFragment_to_mypageFragment"-->
-<!--            app:destination="@id/mypageFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_statisticsFragment_to_historyFragment"-->
-<!--            app:destination="@id/historyFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_statisticsFragment_to_homeFragment"-->
-<!--            app:destination="@id/homeFragment" />-->
-    </fragment>
-
-    <fragment
-        android:id="@+id/exampleFragment"
-        android:name="com.example.meter.ExampleFragment"
-        android:label="ExampleFragment" >
-<!--        <action-->
-<!--            android:id="@+id/action_exampleFragment_to_mypageFragment"-->
-<!--            app:destination="@id/mypageFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_exampleFragment_to_historyFragment"-->
-<!--            app:destination="@id/historyFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_exampleFragment_to_statisticsFragment"-->
-<!--            app:destination="@id/statisticsFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_exampleFragment_to_homeFragment"-->
-<!--            app:destination="@id/homeFragment" />-->
-    </fragment>
+    app:startDestination="@id/homeFragment">
 
     <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.meter.HomeFragment"
         android:label="HomeFragment" >
-<!--        <action-->
-<!--            android:id="@+id/action_homeFragment_to_statisticsFragment"-->
-<!--            app:destination="@id/statisticsFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_homeFragment_to_exampleFragment"-->
-<!--            app:destination="@id/exampleFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_homeFragment_to_mypageFragment"-->
-<!--            app:destination="@id/mypageFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_homeFragment_to_historyFragment"-->
-<!--            app:destination="@id/historyFragment" />-->
     </fragment>
 
     <fragment
         android:id="@+id/mypageFragment"
         android:name="com.example.meter.MypageFragment"
         android:label="MypageFragment" >
-<!--        <action-->
-<!--            android:id="@+id/action_mypageFragment_to_exampleFragment"-->
-<!--            app:destination="@id/exampleFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_mypageFragment_to_statisticsFragment"-->
-<!--            app:destination="@id/statisticsFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_mypageFragment_to_historyFragment"-->
-<!--            app:destination="@id/historyFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_mypageFragment_to_homeFragment"-->
-<!--            app:destination="@id/homeFragment" />-->
     </fragment>
 
-    <fragment
-        android:id="@+id/historyFragment"
-        android:name="com.example.meter.HistoryFragment"
-        android:label="fragment_history"
-        tools:layout="@layout/fragment_history" >
-<!--        <action-->
-<!--            android:id="@+id/action_historyFragment_to_mypageFragment"-->
-<!--            app:destination="@id/mypageFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_historyFragment_to_exampleFragment"-->
-<!--            app:destination="@id/exampleFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_historyFragment_to_statisticsFragment"-->
-<!--            app:destination="@id/statisticsFragment" />-->
-<!--        <action-->
-<!--            android:id="@+id/action_historyFragment_to_homeFragment"-->
-<!--            app:destination="@id/homeFragment" />-->
-    </fragment>
 </navigation>

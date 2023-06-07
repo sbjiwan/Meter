@@ -5,22 +5,11 @@
         android:enabled="true"
         android:icon="@drawable/home"
         android:title="홈"/>
-
     <item
-        android:id="@+id/action_history1"
-        android:enabled="true"
-        android:icon="@drawable/history"
-        android:title="요금"/>
-    <item
-        android:id="@+id/action_history2"
+        android:id="@+id/action_history"
         android:enabled="true"
         android:icon="@drawable/history"
         android:title="사용량"/>
-    <item
-        android:id="@+id/action"
-        android:enabled="true"
-        android:icon="@drawable/history"
-        android:title="데이터분석"/>
     <item
         android:id="@+id/action_mypage"
         android:enabled="true"

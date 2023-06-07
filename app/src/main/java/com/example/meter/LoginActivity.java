@@ -129,7 +129,6 @@ public class LoginActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show();
                         }
                     });
-
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }

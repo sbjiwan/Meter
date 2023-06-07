@@ -28,7 +28,8 @@ public class SigninActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
     private final CollectionReference userReference = firestore.collection("user");
-    private boolean check_email, check_pw, check_pwcf = false;
+    private boolean check_email, check_pw, check_pwcf, check_member = false;
+    private int member;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,7 +51,7 @@ public class SigninActivity extends AppCompatActivity {
                 else {
                     binding.wrongSignId.setText("");
                     check_email = true;}
-                binding.signIn.setEnabled(check_email && check_pw && check_pwcf);
+                binding.signIn.setEnabled(check_email && check_pw && check_pwcf && check_member);
             }
             @Override
             public void afterTextChanged(Editable editable) {}
@@ -68,7 +69,7 @@ public class SigninActivity extends AppCompatActivity {
                     binding.wrongSignPw.setTextColor(Color.GRAY);
                     binding.wrongSignPw.setText(R.string.right_pw);
                     check_pw = true;}
-                binding.signIn.setEnabled(check_email && check_pw && check_pwcf);
+                binding.signIn.setEnabled(check_email && check_pw && check_pwcf && check_member);
             }
             @Override
             public void afterTextChanged(Editable editable) {}
@@ -86,7 +87,23 @@ public class SigninActivity extends AppCompatActivity {
                     binding.wrongSignPwcf.setTextColor(Color.GRAY);
                     binding.wrongSignPwcf.setText(R.string.ckpw_2);
                     check_pwcf = true;}
-                binding.signIn.setEnabled(check_email && check_pw && check_pwcf);
+                binding.signIn.setEnabled(check_email && check_pw && check_pwcf && check_member);
+            }
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
+        binding.signMember.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if(charSequence != null) {
+                    member = Integer.parseInt(charSequence.toString());
+                    check_member = true;
+                }
+                else check_member = false;
+
+                binding.signIn.setEnabled(check_email && check_pw && check_pwcf && check_member);
             }
             @Override
             public void afterTextChanged(Editable editable) {}
@@ -122,6 +139,7 @@ public class SigninActivity extends AppCompatActivity {
 
             Map<String, Object> map = new HashMap<>();
             map.put("salt", salt);
+            map.put("member", member);
 
             mAuth = FirebaseAuth.getInstance();
             mAuth.createUserWithEmailAndPassword(email, sb.toString())

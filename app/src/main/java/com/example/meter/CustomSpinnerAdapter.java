@@ -59,7 +59,6 @@ public class CustomSpinnerAdapter extends BaseAdapter {
             text = list.get(position);
             ((TextView) convertView.findViewById(R.id.spinner_text)).setText(text);
         }
-
         return convertView;
     }
 

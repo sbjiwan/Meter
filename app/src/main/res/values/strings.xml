@@ -5,6 +5,7 @@
     <string name="id">이메일</string>
     <string name="password">비밀번호</string>
     <string name="password_confirm">비밀번호 확인</string>
+    <string name="member">가구 인원</string>
     <string name="wrong_id">잘못된 유형의 이메일 주소입니다.</string>
     <string name="wrong_pw">비밀번호는 8자 이상이어야 합니다.</string>
     <string name="right_pw">사용가능한 비밀번호입니다.</string>
@@ -22,6 +23,8 @@
     <string name="end">입니다.</string>
     <string name="avg">평균 사용량</string>
     <string name="detail">상세정보</string>
+    <string name="cancle">취소</string>
+
 
     <string-array name="year_list">
         <item>2021</item>

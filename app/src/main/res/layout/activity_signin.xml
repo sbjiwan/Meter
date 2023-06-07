@@ -4,9 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    android:id="@+id/signin_activity"
-
-    >
+    android:id="@+id/signin_activity" >
 
     <TextView
         android:id="@+id/textView"
@@ -24,9 +22,9 @@
         android:id="@+id/sign_id"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_marginStart="15dp"
+        android:layout_marginStart="12dp"
         android:layout_marginTop="180dp"
-        android:layout_marginEnd="15dp"
+        android:layout_marginEnd="12dp"
         android:backgroundTint="@color/teal_100"
         android:hint="@string/id"
         android:inputType="textEmailAddress"
@@ -49,8 +47,8 @@
         android:id="@+id/sign_password"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
         android:backgroundTint="@color/teal_100"
         android:hint="@string/password"
         android:inputType="textPassword"
@@ -73,8 +71,8 @@
         android:id="@+id/sign_password_confirm"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
         android:backgroundTint="@color/teal_100"
         android:hint="@string/password_confirm"
         android:inputType="textPassword"
@@ -93,13 +91,29 @@
         app:layout_constraintStart_toStartOf="@+id/sign_password_confirm"
         app:layout_constraintTop_toBottomOf="@+id/sign_password_confirm" />
 
+
+    <EditText
+        android:id="@+id/sign_member"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:backgroundTint="@color/teal_100"
+        android:hint="@string/member"
+        android:inputType="number"
+        android:textColor="@color/teal_500"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wrong_sign_pwcf" />
+
     <Button
         android:id="@+id/sign_in"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginEnd="15dp"
-        android:layout_marginBottom="240dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="200dp"
         android:backgroundTint="@color/water"
         android:text="@string/sign_in"
         android:textColor="@color/white"

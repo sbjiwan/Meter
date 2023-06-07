@@ -18,20 +18,18 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeActivity extends AppCompatActivity {
 
+    private ActivityHomeBinding binding;
     private AppBarConfiguration appBarConfiguration;
     private final FragmentManager fragmentManager = getSupportFragmentManager();
-    private HomeFragment frag1;
-    private StatisticsFragment frag2;
-    private HistoryFragment frag3;
-    private ExampleFragment frag4;
-    private MypageFragment frag5;
+    private HomeFragment homeFragment;
+    private MypageFragment mypageFragment;
 
     @SuppressLint("NonConstantResourceId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        com.example.meter.databinding.ActivityHomeBinding binding = ActivityHomeBinding.inflate(getLayoutInflater());
+        binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
@@ -49,31 +47,19 @@ public class HomeActivity extends AppCompatActivity {
             FragmentTransaction transaction = fragmentManager.beginTransaction();
             switch (menuItem.getItemId()) {
                 case R.id.action_home:
-                    transaction.replace(R.id.content_main, frag1).commit();
-                    break;
-                case R.id.action_history1:
-                    transaction.replace(R.id.content_main, frag2).commit();
-                    break;
-                case R.id.action_history2:
-                    transaction.replace(R.id.content_main, frag3).commit();
-                    break;
-                case R.id.action:
-                    transaction.replace(R.id.content_main, frag4).commit();
+                    transaction.replace(R.id.content_main, homeFragment).commit();
                     break;
                 case R.id.action_mypage:
-                    transaction.replace(R.id.content_main, frag5).commit();
+                    transaction.replace(R.id.content_main, mypageFragment).commit();
                     break;
             }
         });
 
-        frag1 = new HomeFragment();
-        frag2 = new StatisticsFragment();
-        frag3 = new HistoryFragment();
-        frag4 = new ExampleFragment();
-        frag5 = new MypageFragment();
+        homeFragment = new HomeFragment();
+        mypageFragment = new MypageFragment();
 
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.replace(R.id.content_main, frag1).commit();
+        transaction.replace(R.id.content_main, homeFragment).commit();
     }
 
     @Override
@@ -82,5 +68,4 @@ public class HomeActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
     }
-
 }
