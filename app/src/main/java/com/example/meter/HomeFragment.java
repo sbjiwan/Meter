@@ -41,55 +41,53 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
 
         reference.document(Objects.requireNonNull(Objects.requireNonNull(auth.getCurrentUser()).getEmail()))
-                .get(source)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        String ym = Objects.requireNonNull(Objects.requireNonNull(
-                                document.getData()).getOrDefault("start", 0)).toString();
-                        String[] yms = ym.split("/");
+                .get()
+                .addOnSuccessListener(task -> {
+                    String ym = Objects.requireNonNull(Objects.requireNonNull(
+                            task.get("start").toString()));
 
-                        int syear = Integer.parseInt(yms[0]);
-                        int smonth = Integer.parseInt(yms[1]);
+                    String[] yms = ym.split("/");
 
-                        selectMonth = new ArrayList<>();
+                    int syear = Integer.parseInt(yms[0]);
+                    int smonth = Integer.parseInt(yms[1]);
+
+                    selectMonth = new ArrayList<>();
+                    selectMonth.add(syear +"년 " + smonth + "월");
+
+                    while (syear != now_year || smonth != now_month + 1) {
+                        smonth ++;
+                        if(smonth == 13) {
+                            smonth = 1;
+                            syear ++;
+                        }
                         selectMonth.add(syear +"년 " + smonth + "월");
-
-                        while (syear != now_year || smonth != now_month + 1) {
-                            smonth ++;
-                            if(smonth == 13) {
-                                smonth = 1;
-                                syear ++;
-                            }
-                            selectMonth.add(syear +"년 " + smonth + "월");
-                        }
-
-                        ArrayAdapter<String> adapter;
-                        if(getContext() != null) {
-                            adapter = new ArrayAdapter<>(getContext(),
-                                    android.R.layout.simple_spinner_item, selectMonth);
-                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                            binding.spinner.setAdapter(adapter);
-                        }
-
-                        binding.spinner.setSelection(selectMonth.size()-1);
-                        binding.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                            @Override
-                            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                                System.out.println(selectMonth.get(position));
-                                Bundle bundle = new Bundle();
-                                bundle.putString("select", selectMonth.get(position));
-                                historyhomeFragment = new HistoryhomeFragment();
-                                historyhomeFragment.setArguments(bundle);
-                                setCurrentFragment(historyhomeFragment);
-                            }
-
-                            @Override
-                            public void onNothingSelected(AdapterView<?> adapterView) {
-
-                            }
-                        });
                     }
+
+                    ArrayAdapter<String> adapter;
+                    if(getContext() != null) {
+                        adapter = new ArrayAdapter<>(getContext(),
+                                android.R.layout.simple_spinner_item, selectMonth);
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        binding.spinner.setAdapter(adapter);
+                    }
+
+                    binding.spinner.setSelection(selectMonth.size()-1);
+                    binding.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                        @Override
+                        public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                            System.out.println(selectMonth.get(position));
+                            Bundle bundle = new Bundle();
+                            bundle.putString("select", selectMonth.get(position));
+                            historyhomeFragment = new HistoryhomeFragment();
+                            historyhomeFragment.setArguments(bundle);
+                            setCurrentFragment(historyhomeFragment);
+                        }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> adapterView) {
+
+                        }
+                    });
                 });
         historyhomeFragment = new HistoryhomeFragment();
         return binding.getRoot();

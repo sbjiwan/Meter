@@ -25,8 +25,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class DetailFragment extends Fragment {
     private FragmentDetailBinding binding;
@@ -35,6 +39,8 @@ public class DetailFragment extends Fragment {
     private final CollectionReference reference = FirebaseFirestore.getInstance().collection("Water_User");
     private final ArrayList<BarEntry> barEntries = new ArrayList<>();
     private final ArrayList<String> xlabel = new ArrayList<>();
+    private int year = 0, month = 0, date = 0;
+    private final Map<String, Integer> data = new HashMap<>();
 
     @SuppressLint({"ClickableViewAccessibility", "NonConstantResourceId"})
     @Override
@@ -42,7 +48,11 @@ public class DetailFragment extends Fragment {
         binding = FragmentDetailBinding.inflate(inflater, container, false);
 
         Bundle bundle = getArguments();
-        int year = 0, month = 0, date = 0;
+
+        data.put("morning", 0);
+        data.put("midday", 0);
+        data.put("evening", 0);
+        data.put("night", 0);
 
         if (bundle != null) {
             String select = bundle.get("select").toString();
@@ -79,6 +89,15 @@ public class DetailFragment extends Fragment {
                                 else
                                     xlabel.add(h + "");
 
+                                if(h >= 6 && h < 10)
+                                    data.put("morning", data.get("morning") + sum.get());
+                                else if(h >= 10 && h < 15)
+                                    data.put("midday", data.get("midday") + sum.get());
+                                else if(h >= 15 && h < 20)
+                                    data.put("evening", data.get("evening") + sum.get());
+                                else if(h >= 20)
+                                    data.put("night", data.get("night") + sum.get());
+
                                 barEntries.add(new BarEntry(h * 1F, sum.get() * 1F));
                                 sum.set(0);
                             }
@@ -91,16 +110,39 @@ public class DetailFragment extends Fragment {
         }
         return binding.getRoot();
     }
+
+    @SuppressLint("SetTextI18n")
     public void draw() {
+        System.out.println();
+        List<Map.Entry<String, Integer>> entries;
+
+        entries = data.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toList());
+
+        binding.title.setText(year + "년 " + (month + 1) + "월 " + date + "일");
+
+        switch (entries.get(3).getKey()) {
+            case "morning":
+                binding.comparison.setText("아침에 가장 많이 사용해요");
+                break;
+            case "midday":
+                binding.comparison.setText("낮에 가장 많이 사용해요");
+                break;
+            case "evening":
+                binding.comparison.setText("저녁에 가장 많이 사용해요");
+                break;
+            case "night":
+                binding.comparison.setText("밤에 가장 많이 사용해요");
+                break;
+        }
+
         BarDataSet dataSet = new BarDataSet(barEntries, "");
 
         dataSet.setDrawValues(false);
 
         BarData barData = new BarData();
         barData.addDataSet(dataSet);
-
-        System.out.println(xlabel.size());
-        System.out.println(barEntries.size());
 
         binding.barchart.getXAxis().setLabelCount(23);
         binding.barchart.getXAxis().setGranularity(1F);

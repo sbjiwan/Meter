@@ -27,9 +27,13 @@ import com.google.firebase.firestore.Source;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.IntSummaryStatistics;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class HistorylineFragment extends Fragment {
     private ArrayList<Integer> lineavg;
@@ -46,8 +50,11 @@ public class HistorylineFragment extends Fragment {
     private final int now_date = t_calendar.get(Calendar.DATE);
     private final int now_month = t_calendar.get(Calendar.MONTH);
     private final int now_year = t_calendar.get(Calendar.YEAR);
+    private int max_date;
     private ArrayList<Entry> lineEntries;
     private ArrayList<Entry> complineEntries;
+    private ArrayList<Entry> predictlineEntries;
+    private Map<Float, Float> predict;
 
     @SuppressLint({"ClickableViewAccessibility", "NonConstantResourceId"})
     @Override
@@ -67,6 +74,7 @@ public class HistorylineFragment extends Fragment {
                 date = calendar.getActualMaximum(Calendar.DATE);
                 calendar.set(Calendar.DATE, date);
             }
+            max_date = calendar.getActualMaximum(Calendar.DATE);
         }
         load_line();
 
@@ -76,8 +84,10 @@ public class HistorylineFragment extends Fragment {
     public void load_line() {
         lineEntries = new ArrayList<>();
         complineEntries = new ArrayList<>();
+        predictlineEntries = new ArrayList<>();
         lineavg = new ArrayList<>();
         comp = new ArrayList<>();
+        predict = new HashMap<>();
 
         calendar.add(Calendar.MONTH, -1);
         int t_date = calendar.getActualMaximum(Calendar.DATE);
@@ -129,17 +139,50 @@ public class HistorylineFragment extends Fragment {
                             lineEntries.add(new Entry((finalI - 1) * 1F, sum1.get() * 1F));
 
                             lineavg.add(meter);
-                            if (finalI == now_date)
-                                draw_line();
                         } else {
                             Log.w(TAG, "Error getting documents.", task.getException());
                         }
+                    });
+        }
+
+        for(int i = date + 1; i <= max_date; i ++) {
+            int finalI = i;
+            reference.document(Objects.requireNonNull(Objects.requireNonNull(auth.getCurrentUser()).getEmail()))
+                    .collection(year + "")
+                    .document((month+1) + "")
+                    .collection( finalI + "")
+                    .document("predict_meter")
+                    .get()
+                    .addOnSuccessListener(task -> {
+                        if(Objects.nonNull(task.get("meter"))) {
+                            int meter = Integer.parseInt(Objects.requireNonNull(task.get("meter")).toString());
+
+                            System.out.println((finalI - 1) + "///" + sum1.get());
+                            sum1.addAndGet(meter);
+                            predict.put((finalI - 1)*1F, sum1.get() * 1F);
+                        }
+                        if (predict.size() == max_date - date)
+                            draw_line();
                     });
         }
     }
 
     @SuppressLint("SetTextI18n")
     public void draw_line() {
+        List<Map.Entry<Float, Float>> entries;
+        List<Map.Entry<Float, Float>> entries2;
+
+        entries = predict.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toList());
+
+        entries2 = predict.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < entries2.size(); i ++)
+            predictlineEntries.add(new Entry(entries.get(i).getKey(), entries2.get(i).getValue()));
+
         IntSummaryStatistics statistics = lineavg.stream().mapToInt(num -> num).summaryStatistics();
         if (comp.size() - 1 > now_date) {
             comp.subList(now_date, comp.size() - 1).clear();
@@ -158,20 +201,30 @@ public class HistorylineFragment extends Fragment {
         LineDataSet dataSet = new LineDataSet(lineEntries, (month + 1) + "월");
 
         dataSet.setColors(Color.rgb(80,200,255));
-        dataSet.setValueTextColor(Color.WHITE);
-
+        dataSet.setDrawValues(false);
         dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
         dataSet.setCircleRadius(1);
         dataSet.setCircleColor(Color.parseColor("#FFA1B4DC"));
         dataSet.setCircleHoleColor(Color.BLUE);
 
         LineDataSet compdataSet = new LineDataSet(complineEntries, month + "월");
+        compdataSet.setDrawCircleHole(false);
+        compdataSet.setDrawCircles(false);
         compdataSet.setColors(Color.rgb(230,230,230));
-        compdataSet.setValueTextColor(Color.WHITE);
+        compdataSet.setDrawValues(false);
         compdataSet.setFillColor(Color.rgb(230,230,230));
         compdataSet.setDrawFilled(true);
 
-        compdataSet.setDrawCircles(false);
+        LineDataSet predictdataSet = new LineDataSet(predictlineEntries, (month+1) + "월 예측 사용량");
+        predictdataSet.setDrawCircleHole(false);
+        predictdataSet.setDrawCircles(false);
+
+        if(complineEntries.get(complineEntries.size() - 1).getY() > predictlineEntries.get(predictlineEntries.size() - 1).getY())
+            predictdataSet.setColors(Color.rgb(30,200,255));
+        else
+            predictdataSet.setColors(Color.RED);
+
+        predictdataSet.setDrawValues(false);
 
         ArrayList<String> xlabel = new ArrayList<>();
 
@@ -185,6 +238,8 @@ public class HistorylineFragment extends Fragment {
         data.addDataSet(compdataSet);
 
         data.addDataSet(dataSet);
+
+        data.addDataSet(predictdataSet);
 
         binding.linechart.getXAxis().setGranularity(1F);
         binding.linechart.getXAxis().setDrawLabels(true);

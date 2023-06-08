@@ -53,10 +53,13 @@ public class HistoryhomeFragment extends Fragment {
     private int date = calendar.get(Calendar.DATE);
     private int month = calendar.get(Calendar.MONTH);
     private int year = calendar.get(Calendar.YEAR);
+    private int max_date;
     private final int now_date = t_calendar.get(Calendar.DATE);
     private final int now_month = t_calendar.get(Calendar.MONTH);
     private final int now_year = t_calendar.get(Calendar.YEAR);
     private ArrayList<BarEntry> barEntries;
+    private int all_avg;
+    private int member;
 
     @SuppressLint({"ClickableViewAccessibility", "NonConstantResourceId"})
     @Override
@@ -79,18 +82,34 @@ public class HistoryhomeFragment extends Fragment {
                 sbundle.putString("select", year + "/" + (month+1));
                 HistorycardFragment historycardFragment = new HistorycardFragment();
                 historycardFragment.setArguments(sbundle);
-                setCurrentFragment(historycardFragment);
+                setCurrentFragment2(historycardFragment);
             }
             else {
                 Bundle sbundle = new Bundle();
                 sbundle.putString("select", year + "/" + month);
                 HistorylineFragment historylineFragment = new HistorylineFragment();
                 historylineFragment.setArguments(sbundle);
-                setCurrentFragment(historylineFragment);
+                setCurrentFragment2(historylineFragment);
             }
         }
 
-        load_month();
+        max_date = calendar.getActualMaximum(Calendar.DATE);
+
+        reference.document(Objects.requireNonNull(Objects.requireNonNull(auth.getCurrentUser()).getEmail()))
+                .get().addOnSuccessListener(task -> {
+                    if (Objects.nonNull(task.get("member"))) {
+                        member = Integer.parseInt(Objects.requireNonNull(task.get("member")).toString());
+
+                        FirebaseFirestore.getInstance().collection("AVG")
+                                .document(member + "")
+                                .get().addOnSuccessListener(task2 -> {
+                                    if (Objects.nonNull(task2.get("meter")))
+                                        all_avg = Integer.parseInt(Objects.requireNonNull(task2.get("meter")).toString());
+
+                                    load_month();
+                                });
+                    }
+                });
 
         binding.btnsCategory.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
             if(isChecked) {
@@ -140,7 +159,7 @@ public class HistoryhomeFragment extends Fragment {
                                     int meter = Integer.parseInt(Objects.requireNonNull(Objects.requireNonNull(
                                             document.getData()).getOrDefault("meter", 0)).toString());
 
-                                    barEntries.add(new BarEntry((final_date - date) * 1F, meter * 1F));
+                                    barEntries.add(new BarEntry((final_date - date + 1) * 1F, meter * 1F));
                                     avg.add(meter);
                                 } else {
                                     Log.w(TAG, "Error getting documents.", task.getException());
@@ -169,11 +188,13 @@ public class HistoryhomeFragment extends Fragment {
                             int meter = Integer.parseInt(Objects.requireNonNull(Objects.requireNonNull(
                                     document.getData()).getOrDefault("meter", 0)).toString());
 
-                            barEntries.add(new BarEntry((final_date + finalCk - 1) * 1F, meter * 1F));
+                            barEntries.add(new BarEntry((final_date + finalCk) * 1F, meter * 1F));
 
                             avg.add(meter);
-                            if (final_date == finalDate)
+                            if (final_date == finalDate) {
+                                barEntries.add(new BarEntry((final_date + finalCk + 1) * 1F, 0));
                                 draw("date");
+                            }
                         } else {
                             Log.w(TAG, "Error getting documents.", task.getException());
                         }
@@ -229,12 +250,13 @@ public class HistoryhomeFragment extends Fragment {
 
                                 if(finalT_month == now_month && finalDay == now_date) {
                                     avg.add(sum.get());
-                                    barEntries.add(new BarEntry((c.get())*1F, sum.get()*1F));
+                                    barEntries.add(new BarEntry((c.get() + 1)*1F, sum.get()*1F));
+                                    barEntries.add(new BarEntry((c.get() + 2)*1F, 0));
                                     draw("week");
                                 }
                                 else if(finalI % 7 == 0) {
                                     avg.add(sum.get());
-                                    barEntries.add(new BarEntry((c.get())*1F, sum.get()*1F));
+                                    barEntries.add(new BarEntry((c.get() + 1)*1F, sum.get()*1F));
                                     c.getAndIncrement();
                                     sum.set(0);
                                 }
@@ -296,12 +318,13 @@ public class HistoryhomeFragment extends Fragment {
 
                                 if(finalI == t_date + date + 7 - dow) {
                                     avg.add(sum.get());
-                                    barEntries.add(new BarEntry((c.get())*1F, sum.get()*1F));
+                                    barEntries.add(new BarEntry((c.get() + 1)*1F, sum.get()*1F));
+                                    barEntries.add(new BarEntry((c.get() + 2)*1F, null));
                                     draw("week");
                                 }
                                 else if(finalI % 7 == 0) {
                                     avg.add(sum.get());
-                                    barEntries.add(new BarEntry((c.get())*1F, sum.get()*1F));
+                                    barEntries.add(new BarEntry((c.get() + 1)*1F, sum.get()*1F));
                                     c.getAndIncrement();
                                     sum.set(0);
                                 }
@@ -316,7 +339,14 @@ public class HistoryhomeFragment extends Fragment {
         barEntries = new ArrayList<>();
         avg = new ArrayList<>();
 
-        for (int i = 0; i < 3; i ++) {
+        int k;
+
+        if(year == now_year && month == now_month)
+            k = 2;
+        else
+            k = 3;
+
+        for (int i = 0; i < k; i ++) {
             int finalI = i;
             reference.document(Objects.requireNonNull(Objects.requireNonNull(auth.getCurrentUser()).getEmail()))
                     .collection(year + "")
@@ -329,13 +359,63 @@ public class HistoryhomeFragment extends Fragment {
                             DocumentSnapshot document = task.getResult();
                             int meter = Integer.parseInt(Objects.requireNonNull(Objects.requireNonNull(
                                     document.getData()).getOrDefault("meter", 0)).toString());
-                            barEntries.add(new BarEntry(finalI * 1F, meter * 1F));
+                            barEntries.add(new BarEntry((finalI + 1) * 1F, meter * 1F));
                             avg.add(meter);
-                            if (finalI == 2) draw("month");
+                            if (finalI == 2) {
+                                barEntries.add(new BarEntry((finalI + 2) * 1F, null));
+                                draw("month");
+                            }
                         } else {
                             Log.w(TAG, "Error getting documents.", task.getException());
                         }
                     });
+        }
+
+        if(k == 2) {
+            AtomicInteger sum1 = new AtomicInteger();
+            AtomicInteger ck = new AtomicInteger();
+
+            for (int i = 1; i <= date; i++) {
+                reference.document(Objects.requireNonNull(Objects.requireNonNull(auth.getCurrentUser()).getEmail()))
+                        .collection(year + "")
+                        .document((month + 1) + "")
+                        .collection(i + "")
+                        .document("METER")
+                        .get(source)
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot document = task.getResult();
+                                int meter = Integer.parseInt(Objects.requireNonNull(Objects.requireNonNull(
+                                        document.getData()).getOrDefault("meter", 0)).toString());
+
+                                sum1.addAndGet(meter);
+                            } else {
+                                Log.w(TAG, "Error getting documents.", task.getException());
+                            }
+                        });
+            }
+
+            for (int i = date + 1; i <= max_date; i++) {
+                reference.document(Objects.requireNonNull(Objects.requireNonNull(auth.getCurrentUser()).getEmail()))
+                        .collection(year + "")
+                        .document((month + 1) + "")
+                        .collection(i + "")
+                        .document("predict_meter")
+                        .get()
+                        .addOnSuccessListener(task -> {
+                            if (Objects.nonNull(task.get("meter"))) {
+                                int meter = Integer.parseInt(Objects.requireNonNull(task.get("meter")).toString());
+
+                                sum1.addAndGet(meter);
+                                ck.getAndIncrement();
+                            }
+                            if (ck.get() == max_date - date) {
+                                barEntries.add(new BarEntry(3F, sum1.get() * 1F));
+                                barEntries.add(new BarEntry(4F, null));
+                                draw("month");
+                            }
+                        });
+            }
         }
         calendar.set(year, month, date);
     }
@@ -351,8 +431,11 @@ public class HistoryhomeFragment extends Fragment {
         List<Integer> color = new ArrayList<>();
         CombinedData data1 = null;
 
+        xlabel.add("");
+
         switch (type) {
             case "date": {
+                binding.avgMeter.setText(member + "인 가구 하루 평균 사용량");
                 if (year == now_year && month == now_month) {
                     calendar.add(Calendar.MONTH, -1);
                     int t_date = calendar.getActualMaximum(Calendar.DATE);
@@ -392,7 +475,7 @@ public class HistoryhomeFragment extends Fragment {
                 }
 
                 if (year == now_year && month == now_month) {
-                    int com = (int) barEntries.get(ck_day - 1).getY();
+                    int com = (int) barEntries.get(ck_day - 2).getY();
                     binding.title2.setText("하루에 " + String.format("%.1f", Avg) + "L 정도 써요");
                     binding.comparison2.setText("오늘은 " + com + "L 썼어요");
                     for (int i = 0; i < ck_day; i++) {
@@ -411,8 +494,8 @@ public class HistoryhomeFragment extends Fragment {
 
                 ArrayList<Entry> entries = new ArrayList<>();
 
-                for (int index = 0; index < barEntries.size(); index++)
-                    entries.add(new Entry(index, 276));
+                for (int index = 0; index < barEntries.size() + 1; index++)
+                    entries.add(new Entry(index, all_avg));
 
                 LineData d = new LineData();
 
@@ -435,7 +518,6 @@ public class HistoryhomeFragment extends Fragment {
                 data1 = new CombinedData();
                 data1.setData(data);
                 data1.setData(d);
-                binding.barchart.getAxisLeft().setGranularity(50F);
 
                 binding.barchart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
                     @Override
@@ -459,7 +541,8 @@ public class HistoryhomeFragment extends Fragment {
                 break;
             }
             case "week": {
-                int com = (int) barEntries.get(barEntries.size() - 1).getY();
+                binding.avgMeter.setText(member + "인 가구 일주일 평균 사용량");
+                int com = (int) barEntries.get(barEntries.size() - 2).getY();
 
                 if (year == now_year && month == now_month) {
                     binding.title2.setText("일주일 " + (int) Avg + "L 정도 써요");
@@ -520,8 +603,8 @@ public class HistoryhomeFragment extends Fragment {
 
                 ArrayList<Entry> entries = new ArrayList<>();
 
-                for (int index = 0; index < barEntries.size(); index++)
-                    entries.add(new Entry(index, 276*7));
+                for (int index = 0; index < barEntries.size() + 1; index++)
+                    entries.add(new Entry(index, all_avg*7));
 
                 LineData d = new LineData();
 
@@ -537,7 +620,7 @@ public class HistoryhomeFragment extends Fragment {
 
                 BarDataSet dataSet1 = new BarDataSet(barEntries, "");
                 dataSet1.setColors(color);
-                dataSet1.setValueTextSize(16F);
+                dataSet1.setDrawValues(false);
 
                 BarData data = new BarData();
                 data.setBarWidth(0.2F);
@@ -545,13 +628,12 @@ public class HistoryhomeFragment extends Fragment {
                 data1 = new CombinedData();
                 data1.setData(data);
                 data1.setData(d);
-                binding.barchart.getAxisLeft().setDrawLabels(false);
                 Legend legend = binding.barchart.getLegend();
                 legend.setXOffset(10f);
-                binding.barchart.setExtraOffsets(5f,5f,5f,5f);
                 break;
             }
             case "month": {
+                binding.avgMeter.setText(member + "인 가구 한달 평균 사용량");
                 ck_day = 3;
 
                 for (int i = 1; i <= 3; i++) {
@@ -561,11 +643,11 @@ public class HistoryhomeFragment extends Fragment {
                         xlabel.add((calendar.get(Calendar.MONTH) - 2 + i) + "월");
                 }
 
-                int com = (int) barEntries.get(barEntries.size() - 1).getY();
+                int com = (int) barEntries.get(barEntries.size() - 2).getY();
 
                 if (year == now_year && month == now_month) {
-                    binding.title2.setText("한달에 " + (int) Avg + "L 정도 써요");
-                    binding.comparison2.setText("이번 달엔 " + com + "L 썼어요");
+                    binding.comparison2.setText("한달에 " + (int) Avg + "L 정도 써요");
+                    binding.title2.setText("이번 달엔 " + com + "L 쓸 것 같아요");
                     for (int i = 0; i < 3; i++) {
                         if (i == 2)
                             color.add(Color.rgb(80, 200, 255));
@@ -574,13 +656,13 @@ public class HistoryhomeFragment extends Fragment {
                     }
                 } else {
                     if ((int) Avg > com)
-                        binding.title2.setText((month + 1) + "월에는 " + ((int) Avg - com) + "L 덜 썼어요");
+                        binding.comparison2.setText((month + 1) + "월에는 " + ((int) Avg - com) + "L 덜 썼어요");
                     else if ((int) Avg == com)
-                        binding.title2.setText((month + 1) + "월에는 평균만큼 썼어요");
+                        binding.comparison2.setText((month + 1) + "월에는 평균만큼 썼어요");
                     else
-                        binding.title2.setText((month + 1) + "월에는 " + (com - (int) Avg) + "L 더 썼어요");
+                        binding.comparison2.setText((month + 1) + "월에는 " + (com - (int) Avg) + "L 더 썼어요");
 
-                    binding.comparison2.setText("한달에 평균 " + (int) Avg + "L 정도 써요");
+                    binding.title2.setText("한달에 평균 " + (int) Avg + "L 정도 써요");
 
                     for (int i = 0; i < 3; i++) {
                         color.add(Color.rgb(140, 140, 160));
@@ -588,14 +670,14 @@ public class HistoryhomeFragment extends Fragment {
                 }
                 BarDataSet dataSet1 = new BarDataSet(barEntries, "");
                 dataSet1.setColors(color);
-                dataSet1.setValueTextSize(16F);
+                dataSet1.setDrawValues(false);
 
                 LineData d = new LineData();
 
                 ArrayList<Entry> entries = new ArrayList<>();
 
-                for (int index = 0; index < 3; index++)
-                    entries.add(new Entry(index, 276*30));
+                for (int index = 0; index < barEntries.size() + 1; index++)
+                    entries.add(new Entry(index, all_avg*30));
 
                 LineDataSet set = new LineDataSet(entries, "Line DataSet");
                 set.setColor(Color.RED);
@@ -613,40 +695,29 @@ public class HistoryhomeFragment extends Fragment {
                 data1.setData(data);
                 data1.setData(d);
 
-                binding.barchart.getAxisLeft().setDrawLabels(false);
-
                 binding.barchart.setOnChartValueSelectedListener(new OnChartValueSelectedListener() {
                     @Override
                     public void onValueSelected(Entry e, Highlight h) {
                         int x = (int) e.getX();
 
-                        System.out.println(month -1 + x);
-
                         Bundle sbundle = new Bundle();
-                        if((month - 1 + x) != (now_month + 1)) {
-                            sbundle.putString("select", year + "/" + (month -1 + x));
-                            HistorycardFragment historycardFragment = new HistorycardFragment();
-                            historycardFragment.setArguments(sbundle);
+                        if(x != 3) {
+                            sbundle.putString("select", year +"년 " + (month -2 + x) + "월");
 
-                            setCurrentFragment(historycardFragment);
-                        }
-                        else {
-                            sbundle.putString("select", year + "/" + (month -2 +x));
-                            HistorylineFragment historylineFragment = new HistorylineFragment();
-                            historylineFragment.setArguments(sbundle);
+                            HistoryhomeFragment historyhomeFragment = new HistoryhomeFragment();
+                            historyhomeFragment.setArguments(sbundle);
 
-                            setCurrentFragment(historylineFragment);
+                            setCurrentFragment(historyhomeFragment);
                         }
                     }
-
                     @Override
-                    public void onNothingSelected() {
-
-                    }
+                    public void onNothingSelected() {}
                 });
                 break;
             }
         }
+        xlabel.add("");
+
         binding.barchart.getXAxis().setLabelCount(ck_day);
         binding.barchart.getXAxis().setGranularity(1F);
         binding.barchart.getXAxis().setDrawLabels(true);
@@ -660,6 +731,7 @@ public class HistoryhomeFragment extends Fragment {
         binding.barchart.getAxisRight().setDrawGridLines(false);
         binding.barchart.getAxisLeft().setDrawAxisLine(false);
         binding.barchart.getAxisLeft().setDrawGridLines(false);
+        binding.barchart.getAxisLeft().setDrawLabels(true);
 
         binding.barchart.setClickable(false);
         binding.barchart.setDoubleTapToZoomEnabled(false);
@@ -671,8 +743,14 @@ public class HistoryhomeFragment extends Fragment {
     }
 
     private void setCurrentFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getParentFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.history_container, fragment).commit();
+    }
+    private void setCurrentFragment2(Fragment fragment) {
         FragmentManager fragmentManager = getChildFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.historyline_container, fragment).commit();
     }
+
 }
